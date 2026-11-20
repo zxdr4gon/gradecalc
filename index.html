@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>What-If Grade Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<style>
+:root{--bg:#0f172a;--card:#1e293b;--bd:#334155;--tx:#e2e8f0;--mut:#94a3b8;--inp:#0f172a;--acc:#6366f1}
+:root.light{--bg:#f1f5f9;--card:#ffffff;--bd:#cbd5e1;--tx:#0f172a;--mut:#64748b;--inp:#f8fafc}
+html{color-scheme:dark}html.light{color-scheme:light}
+body{background:var(--bg);color:var(--tx);font-family:Inter,system-ui,sans-serif;overflow-x:hidden;transition:background .3s,color .3s;-webkit-tap-highlight-color:transparent}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums}
+.mut{color:var(--mut)}
+.card{background:color-mix(in srgb,var(--card) 88%,transparent);border:1px solid var(--bd);border-radius:20px;padding:16px;backdrop-filter:blur(12px);transition:border-color .3s,box-shadow .3s,background .3s}
+.rowc{border:1px solid var(--bd);border-radius:16px;padding:12px;background:color-mix(in srgb,var(--bg) 45%,transparent);transition:border-color .2s}
+.rowc:focus-within{border-color:var(--acc)}
+.inp{width:100%;min-height:44px;background:var(--inp);border:1px solid var(--bd);border-radius:12px;padding:0 12px;color:var(--tx);font-size:16px;outline:0;transition:border-color .15s,box-shadow .15s}
+.inp:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(99,102,241,.25)}
+.btn{min-height:44px;min-width:44px;padding:0 14px;border-radius:12px;border:1px solid var(--bd);background:var(--card);color:var(--tx);font-weight:600;font-size:14px;cursor:pointer;transition:border-color .15s,transform .1s,background .15s}
+.btn:hover{border-color:var(--acc)}.btn:active{transform:scale(.96)}
+.btn:focus-visible,.pill:focus-visible,.seg button:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.btn-p{background:var(--acc);border-color:var(--acc);color:#fff}
+.btn-d:hover{border-color:#ef4444;color:#ef4444}
+.pill{min-height:40px;padding:0 14px;border-radius:999px;border:1px solid var(--bd);background:var(--inp);color:var(--tx);font-weight:600;font-size:14px;cursor:pointer;transition:all .15s}
+.pill:hover{border-color:var(--acc)}.pill.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.seg{display:flex;gap:4px;background:var(--inp);border:1px solid var(--bd);border-radius:14px;padding:3px}
+.seg button{flex:1;min-height:40px;border-radius:11px;font-weight:600;font-size:14px;color:var(--mut);transition:all .2s;cursor:pointer}
+.seg button.on{background:var(--acc);color:#fff}
+.lbl{display:block;font-size:12px;font-weight:600;color:var(--mut);margin-bottom:4px}
+.badge{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:24px;min-width:52px;text-align:center;padding:4px 12px;border-radius:14px;border:1px solid var(--bd)}
+select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath d='M1 1l5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:36px;background:transparent;cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:8px;border-radius:99px;background:linear-gradient(90deg,var(--acc) var(--p,50%),var(--bd) var(--p,50%))}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;margin-top:-10px;border-radius:50%;background:#fff;border:3px solid var(--acc);box-shadow:0 2px 8px rgba(0,0,0,.4);transition:transform .15s}
+input[type=range]:active::-webkit-slider-thumb{transform:scale(1.15)}
+input[type=range]::-moz-range-track{height:8px;border-radius:99px;background:var(--bd)}
+input[type=range]::-moz-range-progress{height:8px;border-radius:99px;background:var(--acc)}
+input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:#fff;border:3px solid var(--acc)}
+#res{border-color:color-mix(in srgb,var(--tc,var(--bd)) 60%,var(--bd));box-shadow:0 0 36px -14px var(--tc,transparent)}
+#rPct{color:var(--tc,var(--tx));transition:color .3s}
+#rStat{background:color-mix(in srgb,var(--tc) 18%,transparent);color:var(--tc);font-weight:700;font-size:13px;padding:4px 12px;border-radius:999px;display:inline-block}
+.sens{border:1px solid color-mix(in srgb,var(--tc) 45%,var(--bd));background:color-mix(in srgb,var(--tc) 8%,transparent);border-radius:14px;padding:10px 6px;text-align:center;transition:all .2s}
+.celebrate #rPct{animation:pop .8s ease-out}
+@keyframes pop{0%{transform:scale(.8)}60%{transform:scale(1.12)}100%{transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body class="min-h-screen">
+<div class="max-w-xl mx-auto px-4 pt-5 space-y-4" style="padding-bottom:calc(env(safe-area-inset-bottom,0px) + 48px)">
+
+<header class="flex items-center justify-between">
+  <div>
+    <h1 class="text-xl font-bold tracking-tight">What-If Grades</h1>
+    <p class="text-xs mut">See the score you need to hit your target</p>
+  </div>
+  <button class="btn" data-act="theme" id="theme" aria-label="Toggle light or dark mode">☀️</button>
+</header>
+
+<div id="empty" class="card text-center hidden space-y-3 py-8">
+  <div class="text-4xl">📊</div>
+  <h2 class="text-lg font-semibold">Add your first class</h2>
+  <p class="text-sm mut">Try the example to see how it works, or start with a blank class.</p>
+  <div class="flex flex-col gap-2 pt-2">
+    <button class="btn btn-p" data-act="example">Load example class</button>
+    <button class="btn" data-act="new">Start a blank class</button>
+  </div>
+</div>
+
+<div id="bar" class="card hidden">
+  <label class="lbl" for="psel">Class</label>
+  <div class="flex gap-2">
+    <select id="psel" class="inp flex-1 min-w-0"></select>
+    <button class="btn btn-p" data-act="new" aria-label="New class">+ New</button>
+    <button class="btn btn-d" data-act="del" aria-label="Delete this class">🗑</button>
+  </div>
+</div>
+
+<main id="main" class="space-y-4 hidden">
+
+  <section class="card space-y-3">
+    <div>
+      <label class="lbl" for="cname">Class name</label>
+      <input id="cname" class="inp" maxlength="60" autocomplete="off">
+    </div>
+    <div>
+      <span class="lbl">Grading system</span>
+      <div class="seg" role="group" aria-label="Grading system">
+        <button data-act="mode" data-v="weighted" id="m-weighted">By category weight</button>
+        <button data-act="mode" data-v="points" id="m-points">Total points</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="card text-center">
+    <span class="lbl">Current overall grade</span>
+    <div class="flex items-center justify-center gap-3 mt-1">
+      <span id="gPct" class="mono text-5xl font-bold">—</span>
+      <span id="gLetter" class="badge">–</span>
+    </div>
+    <div id="gNote" class="text-xs mut mt-3 leading-relaxed"></div>
+  </section>
+
+  <section class="card space-y-3">
+    <div class="flex items-center justify-between">
+      <h2 class="font-semibold">Current standing</h2>
+      <button class="btn" data-act="addcat">+ Category</button>
+    </div>
+    <div id="cats" class="space-y-3"></div>
+    <p id="wnote" class="text-xs mut mono"></p>
+  </section>
+
+  <section class="card space-y-3">
+    <div class="flex items-center justify-between">
+      <h2 class="font-semibold">Upcoming assignments</h2>
+      <button class="btn" data-act="addassign">+ Assignment</button>
+    </div>
+    <div id="assigns" class="space-y-3"></div>
+  </section>
+
+  <section class="card space-y-4">
+    <h2 class="font-semibold">Target grade</h2>
+    <div class="flex items-center gap-3">
+      <input id="tRange" type="range" min="0" max="100" step="0.5" aria-label="Target grade slider">
+      <div class="flex items-center gap-1 shrink-0">
+        <input id="tIn" class="inp mono text-center" style="width:84px" inputmode="decimal" aria-label="Target grade percent">
+        <span class="mut">%</span>
+      </div>
+    </div>
+    <div class="flex gap-2 flex-wrap">
+      <button class="pill" data-act="preset" data-v="90">A (90%)</button>
+      <button class="pill" data-act="preset" data-v="80">B (80%)</button>
+      <button class="pill" data-act="preset" data-v="70">C (70%)</button>
+    </div>
+
+    <div id="res" class="card text-center space-y-2" style="padding:20px 16px">
+      <span class="lbl">Score needed on the unsolved assignment(s)</span>
+      <div id="rPct" class="mono text-5xl font-bold">—</div>
+      <div id="rPts" class="mono text-lg font-bold"></div>
+      <div><span id="rStat" class="hidden"></span></div>
+      <p id="rMsg" class="text-sm mut leading-relaxed"></p>
+    </div>
+
+    <div id="sensBox" class="hidden">
+      <p id="sensT" class="text-sm font-semibold mb-2"></p>
+      <div id="sens" class="grid grid-cols-2 sm:grid-cols-4 gap-2"></div>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<script>
+(function(){
+'use strict';
+var KEY='gradeCalc.v1';
+var TONES={ok:'#22c55e',warn:'#f59e0b',lock:'#a78bfa',mut:'#94a3b8'};
+var $=function(s){return document.querySelector(s)};
+var esc=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+var n=function(v){var x=parseFloat(String(v==null?'':v).replace(',','.'));return isFinite(x)&&x>0?x:0};
+var fmt=function(v,d){return isFinite(v)?v.toFixed(d==null?2:d):'—'};
+var pf=function(v){return String(+Number(v).toFixed(2))};
+var uid=function(){return Math.random().toString(36).slice(2,9)};
+
+/* ---------- state ---------- */
+function load(){try{var s=JSON.parse(localStorage.getItem(KEY));if(s&&Array.isArray(s.profiles))return s}catch(e){}return{profiles:[],active:null,theme:'dark'}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+var S=load();
+if(!S.profiles.some(function(p){return p.id===S.active}))S.active=S.profiles[0]?S.profiles[0].id:null;
+function P(){return S.profiles.find(function(p){return p.id===S.active})||null}
+
+function blank(name){return{id:uid(),name:name,mode:'weighted',target:90,
+  cats:[{id:uid(),name:'Summative',weight:70,earned:'',possible:''},{id:uid(),name:'Formative',weight:30,earned:'',possible:''}],assigns:[]}}
+function example(){var a=uid(),b=uid();return{id:uid(),name:'AP Chemistry (example)',mode:'weighted',target:92,
+  cats:[{id:a,name:'Summative',weight:70,earned:523,possible:580},{id:b,name:'Formative',weight:30,earned:134,possible:150}],
+  assigns:[{id:uid(),name:'Unit 4 Test',cat:a,pts:100,lock:false,score:''},{id:uid(),name:'Lab Quiz',cat:b,pts:20,lock:true,score:17}]}}
+
+/* ---------- math ---------- */
+/* f(a) returns [earned, possible] for an upcoming assignment, or null to ignore it */
+function calc(p,f){
+  var T={},E=0,Q=0;
+  p.cats.forEach(function(c){T[c.id]=[n(c.earned),n(c.possible)]});
+  p.assigns.forEach(function(a){
+    var r=f(a);if(!r)return;
+    if(p.mode==='points'){E+=r[0];Q+=r[1];return}
+    var t=T[a.cat];if(t){t[0]+=r[0];t[1]+=r[1]}
+  });
+  if(p.mode==='points'){
+    p.cats.forEach(function(c){E+=T[c.id][0];Q+=T[c.id][1]});
+    return Q>0?{g:E/Q*100,used:0}:null;
+  }
+  var sw=0,s=0,u=0;
+  p.cats.forEach(function(c){var t=T[c.id];if(t[1]>0){var w=n(c.weight);sw+=w;s+=w*t[0]/t[1];u++}});
+  return sw>0?{g:s/sw*100,used:u}:null;
+}
+/* Grade is linear in the fraction x scored on unsolved work, so solve g0 + x(g1-g0) = target */
+function solve(p,ov){
+  var un=p.assigns.filter(function(a){return !a.lock});
+  if(!un.length)return{none:1};
+  var first=un[0];
+  var pt=function(a){return(a===first&&ov!=null)?ov:n(a.pts)};
+  var g0=calc(p,function(a){return a.lock?[n(a.score),n(a.pts)]:[0,pt(a)]});
+  var g1=calc(p,function(a){return a.lock?[n(a.score),n(a.pts)]:[pt(a),pt(a)]});
+  if(!g0||!g1)return{bad:1};
+  var d=g1.g-g0.g;
+  if(Math.abs(d)<1e-9)return{flat:1};
+  var tp=un.reduce(function(s,a){return s+pt(a)},0);
+  return{x:(n(p.target)-g0.g)/d,g0:g0.g,g1:g1.g,tp:tp,un:un,first:first,pt:pt};
+}
+function letter(g){return g>=90?['A','#22c55e']:g>=80?['B','#3b82f6']:g>=70?['C','#f59e0b']:g>=60?['D','#f97316']:['F','#ef4444']}
+function setBadge(el,g){
+  if(g==null){el.textContent='–';el.style.cssText='';return}
+  var l=letter(g);el.textContent=l[0];el.style.background=l[1]+'26';el.style.color=l[1];el.style.borderColor=l[1]+'66';
+}
+
+/* ---------- rendering ---------- */
+function fix(p){var first=p.cats[0]?p.cats[0].id:null;p.assigns.forEach(function(a){if(!p.cats.some(function(c){return c.id===a.cat}))a.cat=first})}
+function field(lbl,k,id,f,val,cls,extra){
+  return '<div class="'+(cls||'')+'"><label class="lbl">'+lbl+'</label><input class="inp'+(f==='name'?'':' mono')+'" data-k="'+k+'" data-id="'+id+'" data-f="'+f+'" value="'+esc(val)+'" '+(extra||'')+'></div>';
+}
+function renderBar(){
+  $('#psel').innerHTML=S.profiles.map(function(p){return '<option value="'+p.id+'"'+(p.id===S.active?' selected':'')+'>'+esc(p.name||'Untitled class')+'</option>'}).join('');
+}
+function renderCats(){
+  var p=P(),w=p.mode==='weighted',num='inputmode="decimal" autocomplete="off"';
+  $('#cats').innerHTML=p.cats.length?p.cats.map(function(c){
+    return '<div class="rowc"><div class="flex gap-2 items-end">'+
+      field('Category','cats',c.id,'name',c.name,'flex-1 min-w-0','maxlength="40"')+
+      (w?field('Weight %','cats',c.id,'weight',c.weight,'w-24 shrink-0',num):'')+
+      '<button class="btn btn-d shrink-0" data-act="delcat" data-id="'+c.id+'" aria-label="Delete category">✕</button></div>'+
+      '<div class="grid grid-cols-2 gap-2 mt-2">'+field('Points earned','cats',c.id,'earned',c.earned,'',num)+field('Points possible','cats',c.id,'possible',c.possible,'',num)+'</div>'+
+      '<div class="text-xs mut mono mt-2" data-cpct="'+c.id+'"></div></div>';
+  }).join(''):'<p class="text-sm mut text-center py-3">No categories yet. Add one to get started.</p>';
+}
+function renderAssigns(){
+  var p=P();fix(p);
+  var opts=function(sel){return p.cats.map(function(c){return '<option value="'+c.id+'"'+(c.id===sel?' selected':'')+'>'+esc(c.name||'Untitled')+'</option>'}).join('')};
+  $('#assigns').innerHTML=p.assigns.length?p.assigns.map(function(a){
+    return '<div class="rowc space-y-3"><div class="flex gap-2 items-end">'+
+      field('Assignment','assigns',a.id,'name',a.name,'flex-1 min-w-0','maxlength="60"')+
+      '<button class="btn btn-d shrink-0" data-act="delassign" data-id="'+a.id+'" aria-label="Delete assignment">✕</button></div>'+
+      (p.mode==='weighted'?'<div><label class="lbl">Category</label><select class="inp" data-k="assigns" data-id="'+a.id+'" data-f="cat">'+opts(a.cat)+'</select></div>':'')+
+      '<div><label class="lbl">Estimated point value</label><div class="flex gap-2 items-center flex-wrap">'+
+        [20,50,100].map(function(v){return '<button class="pill" data-act="pts" data-id="'+a.id+'" data-v="'+v+'">'+v+'</button>'}).join('')+
+        '<input class="inp mono" style="width:96px" inputmode="decimal" placeholder="Custom" data-k="assigns" data-id="'+a.id+'" data-f="pts" value="'+esc(a.pts)+'" aria-label="Custom point value"></div></div>'+
+      '<div class="seg"><button data-act="lock" data-id="'+a.id+'" data-v="0" class="'+(a.lock?'':'on')+'">Solve for t</button><button data-act="lock" data-id="'+a.id+'" data-v="1" class="'+(a.lock?'on':'')+'">Lock a score</button></div>'+
+      (a.lock?'<div>'+field('Score earned (points)','assigns',a.id,'score',a.score,'','inputmode="decimal" autocomplete="off"')+'<div class="text-xs mut mono mt-2" data-lpct="'+a.id+'"></div></div>'
+             :'<div class="mono font-bold text-sm" data-need="'+a.id+'"></div>')+'</div>';
+  }).join(''):'<p class="text-sm mut text-center py-3">Add an upcoming test or quiz to see the score you need.</p>';
+}
+function render(){
+  var p=P();
+  document.documentElement.classList.toggle('light',S.theme==='light');
+  $('#theme').textContent=S.theme==='light'?'🌙':'☀️';
+  var tc=document.querySelector('meta[name=theme-color]');if(tc)tc.content=S.theme==='light'?'#f1f5f9':'#0f172a';
+  $('#empty').classList.toggle('hidden',!!p);$('#bar').classList.toggle('hidden',!p);$('#main').classList.toggle('hidden',!p);
+  if(!p)return;
+  renderBar();$('#cname').value=p.name;
+  ['weighted','points'].forEach(function(m){$('#m-'+m).classList.toggle('on',p.mode===m)});
+  $('#tIn').value=p.target;syncTarget('');
+  renderCats();renderAssigns();update();
+}
+function syncTarget(src){
+  var p=P(),v=n(p.target);
+  if(src!=='rg')$('#tRange').value=Math.min(100,v);
+  $('#tRange').style.setProperty('--p',Math.min(100,v)+'%');
+  document.querySelectorAll('[data-act=preset]').forEach(function(b){b.classList.toggle('on',+b.dataset.v===v)});
+}
+function update(){
+  var p=P();if(!p)return;
+  var cur=calc(p,function(){return null});
+  $('#gPct').textContent=cur?fmt(cur.g)+'%':'—';
+  setBadge($('#gLetter'),cur?cur.g:null);
+  var notes=[];
+  if(!cur)notes.push(p.mode==='weighted'&&!p.cats.some(function(c){return n(c.weight)>0})?'Enter category weights to see your grade.':'Enter points possible to see your grade.');
+  else if(p.mode==='weighted'&&cur.used<p.cats.length)notes.push('Weights are normalized across the '+cur.used+' of '+p.cats.length+' categories that have points.');
+  if(p.assigns.some(function(a){return a.lock})){
+    var w=calc(p,function(a){return a.lock?[n(a.score),n(a.pts)]:null});
+    if(w)notes.push('With your locked what-ifs: <span class="mono">'+fmt(w.g)+'% ('+letter(w.g)[0]+')</span>');
+  }
+  $('#gNote').innerHTML=notes.map(function(t){return t.indexOf('<')<0?esc(t):t}).join('<br>');
+
+  p.cats.forEach(function(c){
+    var el=document.querySelector('[data-cpct="'+c.id+'"]');if(!el)return;
+    var e=n(c.earned),q=n(c.possible);
+    el.textContent=q>0?fmt(e/q*100)+'%  ·  '+pf(e)+' / '+pf(q)+' pts':'No points yet, so this category is skipped';
+  });
+  var tw=p.cats.reduce(function(s,c){return s+n(c.weight)},0);
+  $('#wnote').textContent=p.mode==='weighted'?(Math.abs(tw-100)>0.01?'Weights total '+pf(tw)+'%, so they’ll be scaled to 100%.':'Weights total 100%'):'';
+  p.assigns.forEach(function(a){
+    var el=document.querySelector('[data-lpct="'+a.id+'"]');
+    if(el){var q=n(a.pts);el.textContent=q>0?fmt(n(a.score)/q*100)+'% on this assignment':'Set a point value above'}
+  });
+  document.querySelectorAll('[data-act=pts]').forEach(function(b){
+    var a=p.assigns.find(function(x){return x.id===b.dataset.id});
+    b.classList.toggle('on',!!a&&n(a.pts)===+b.dataset.v);
+  });
+
+  var r=solve(p),card=$('#res'),tone='mut',stat='',msg='',pct='—',pts='';
+  card.classList.remove('celebrate');
+  if(r.none)msg='Add an upcoming assignment and leave it on “Solve for t”.';
+  else if(r.bad)msg='Enter points possible for at least one category first.';
+  else if(r.flat)msg='These assignments don’t change your grade. Check the category’s weight and the point value.';
+  else{
+    var x=r.x;
+    if(x<=0){tone='lock';stat='Locked in 🎉';pct='0.00%';pts='0 / '+pf(r.tp)+' pts';msg='Even a 0% leaves you at '+fmt(r.g0)+'%, which is above your '+pf(p.target)+'% target.';card.classList.add('celebrate')}
+    else{
+      pct=fmt(x*100)+'%';pts=pf(x*r.tp)+' / '+pf(r.tp)+' pts';
+      if(x<=1){tone='ok';stat='Achievable';msg=r.un.length>1?'Score this on each of your '+r.un.length+' unsolved assignments to land exactly on '+pf(p.target)+'%.':'Score this to land exactly on '+pf(p.target)+'%.'}
+      else{tone='warn';stat='Extra credit needed';msg='That’s more than 100%. A perfect score only reaches '+fmt(r.g1)+'%, so you’d need extra credit or a lower target.'}
+    }
+  }
+  card.style.setProperty('--tc',TONES[tone]);
+  $('#rPct').textContent=pct;$('#rPts').textContent=pts;$('#rMsg').textContent=msg;
+  var st=$('#rStat');st.textContent=stat;st.classList.toggle('hidden',!stat);
+  p.assigns.forEach(function(a){
+    var el=document.querySelector('[data-need="'+a.id+'"]');if(!el)return;
+    if(r.x===undefined){el.textContent='';return}
+    var q=r.pt(a);el.style.color=TONES[r.x<=0?'lock':r.x<=1?'ok':'warn'];
+    el.textContent=r.x<=0?'Any score works':'Needs '+pf(r.x*q)+' / '+pf(q)+' ('+fmt(r.x*100)+'%)';
+  });
+
+  var box=$('#sensBox');
+  if(r.x===undefined){box.classList.add('hidden');return}
+  box.classList.remove('hidden');
+  $('#sensT').textContent='If “'+(r.first.name||'this assignment')+'” ends up worth…';
+  $('#sens').innerHTML=[25,50,75,100].map(function(v){
+    var s=solve(p,v),c='mut',a='—',b='';
+    if(s.x!==undefined){
+      if(s.x<=0){c='lock';a='Safe';b='any score'}
+      else{c=s.x<=1?'ok':'warn';a=pf(s.x*v)+' pts';b=fmt(s.x*100,1)+'%'}
+    }
+    return '<div class="sens" style="--tc:'+TONES[c]+'"><div class="text-xs mut mono">'+v+' pts</div><div class="mono font-bold">'+a+'</div><div class="text-xs mono" style="color:var(--tc)">'+b+'</div></div>';
+  }).join('');
+}
+
+/* ---------- events ---------- */
+document.addEventListener('input',function(e){
+  var t=e.target,p=P();if(!p)return;
+  if(t.id==='tRange'){p.target=+t.value;$('#tIn').value=p.target;syncTarget('rg')}
+  else if(t.id==='tIn'){p.target=n(t.value);syncTarget('in')}
+  else if(t.id==='cname'){p.name=t.value;renderBar()}
+  else if(t.dataset&&t.dataset.k){
+    var o=p[t.dataset.k].find(function(x){return x.id===t.dataset.id});if(!o)return;
+    o[t.dataset.f]=t.value;
+    if(t.dataset.k==='cats'&&t.dataset.f==='name')renderAssigns();
+  }else return;
+  save();update();
+});
+$('#psel').addEventListener('change',function(e){S.active=e.target.value;save();render()});
+document.addEventListener('click',function(e){
+  var b=e.target.closest('[data-act]');if(!b)return;
+  var a=b.dataset.act,id=b.dataset.id,v=b.dataset.v,p=P();
+  if(!p&&['theme','example','new'].indexOf(a)<0)return;
+  switch(a){
+    case 'theme':S.theme=S.theme==='light'?'dark':'light';break;
+    case 'example':var x=example();S.profiles.push(x);S.active=x.id;break;
+    case 'new':var y=blank('Class '+(S.profiles.length+1));S.profiles.push(y);S.active=y.id;break;
+    case 'del':
+      if(!confirm('Delete “'+(p.name||'this class')+'”? This can’t be undone.'))return;
+      S.profiles=S.profiles.filter(function(q){return q!==p});S.active=S.profiles[0]?S.profiles[0].id:null;break;
+    case 'mode':p.mode=v;break;
+    case 'addcat':p.cats.push({id:uid(),name:'New category',weight:'',earned:'',possible:''});break;
+    case 'delcat':p.cats=p.cats.filter(function(c){return c.id!==id});break;
+    case 'addassign':p.assigns.push({id:uid(),name:'Assignment '+(p.assigns.length+1),cat:p.cats[0]?p.cats[0].id:null,pts:100,lock:false,score:''});break;
+    case 'delassign':p.assigns=p.assigns.filter(function(q){return q.id!==id});break;
+    case 'pts':p.assigns.forEach(function(q){if(q.id===id)q.pts=+v});break;
+    case 'lock':p.assigns.forEach(function(q){if(q.id===id)q.lock=v==='1'});break;
+    case 'preset':p.target=+v;break;
+  }
+  save();render();
+  if(a==='new'){var c=$('#cname');c.focus();c.select()}
+});
+render();
+})();
+</script>
+</body>
+</html>
